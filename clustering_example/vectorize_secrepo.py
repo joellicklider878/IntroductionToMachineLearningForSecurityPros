@@ -16,7 +16,6 @@ def ip2int(addr):
 
 def get_prevectors():
     data_path = "data/www.secrepo.com/self.logs/"
-    # ensure we get the IPs used in the examples
     prevectors = {
         ip2int("192.187.126.162"): {"requests": {}, "responses": {}},
         ip2int("49.50.76.8"): {"requests": {}, "responses": {}},
@@ -51,28 +50,8 @@ def get_prevectors():
 
 
 def convert_prevectors_to_vectors(prevectors):
-    request_types = [
-        "GET",
-        "POST",
-        "HEAD",
-        "OPTIONS",
-        "PUT",
-        "TRACE"
-    ]
-    response_codes = [
-        200,
-        404,
-        403,
-        304,
-        301,
-        206,
-        418,
-        416,
-        403,
-        405,
-        503,
-        500,
-    ]
+    request_types = ["GET", "POST", "HEAD", "OPTIONS", "PUT", "TRACE"]
+    response_codes = [200, 404, 403, 304, 301, 206, 418, 416, 403, 405, 503, 500]
 
     vectors = np.zeros((len(prevectors.keys()), len(request_types) + len(response_codes)), dtype=np.float32)
     ips = []
@@ -84,7 +63,7 @@ def convert_prevectors_to_vectors(prevectors):
                 vectors[index, ri] = v["requests"][r]
         for ri, r in enumerate(response_codes):
             if r in v["responses"]:
-                vectors[index, len(request_types) + ri] = v["requests"][r]
+                vectors[index, len(request_types) + ri] = v["responses"][r]
 
     return ips, vectors
 
@@ -99,4 +78,4 @@ if __name__ == "__main__":
         f.create_dataset("cluster", shape=(vectors.shape[0],), data=np.zeros((vectors.shape[0],), dtype=np.int32))
         f.create_dataset("notes", shape=(vectors.shape[0],), data=np.array(ips))
 
-    print "Finished prebuilding samples"
+    print("Finished prebuilding samples")

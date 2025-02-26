@@ -7,7 +7,7 @@ def generate_random_string(length):
 
 
 def principal_period(s):
-    i = (s+s).find(s, 1, -1)
+    i = (s + s).find(s, 1, -1)
     return None if i == -1 else s[:i]
 
 
@@ -15,7 +15,7 @@ def make_dataset(dataset, nsamp, slen, maxkeylen):
     x = np.zeros((nsamp, slen, 8))
     y = np.zeros((nsamp, maxkeylen))
 
-    for i in xrange(nsamp):
+    for i in range(nsamp):
         keylen = np.random.randint(maxkeylen) + 1
 
         # save key len as categorical variable
@@ -23,13 +23,13 @@ def make_dataset(dataset, nsamp, slen, maxkeylen):
 
         dataptr = np.random.randint(len(dataset) - slen)
         data = dataset[dataptr:dataptr + slen]
-        data = np.fromstring(data, dtype=np.uint8)
+        data = np.frombuffer(data.encode(), dtype=np.uint8)
 
         key = generate_random_string(keylen)
         while principal_period(key) is not None:
             key = generate_random_string(keylen)
 
-        key = np.fromstring(key, dtype=np.uint8)
+        key = np.frombuffer(key, dtype=np.uint8)
 
         key_nrep = int(np.ceil(float(slen) / float(len(key))))
         key_exp = np.tile(key, key_nrep)[:slen]
@@ -52,27 +52,27 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output', required=True, help="File to write encrypted data to")
     args = parser.parse_args()
 
-    print "Loading data"
+    print("Loading data")
     with open("enwik8", "r") as f:
         dataset = f.read()
 
     dataptr = np.random.randint(len(dataset) - 64)
     data = dataset[dataptr:dataptr + 64]
 
-    print "Plaintext:", repr(data)
-    print "Key size:", args.bytes_in_key
+    print("Plaintext:", repr(data))
+    print("Key size:", args.bytes_in_key)
 
     key = generate_random_string(args.bytes_in_key)
     while principal_period(key) is not None:
         key = generate_random_string(args.bytes_in_key)
 
-    print "Key:", repr(key)
+    print("Key:", repr(key))
     cipher_text = ""
 
-    for i in xrange(len(data)):
+    for i in range(len(data)):
         cipher_text += chr(ord(data[i]) ^ ord(key[i % len(key)]))
 
-    print "Cipher text:", repr(cipher_text)
+    print("Cipher text:", repr(cipher_text))
 
     with open(args.output, "wb") as f:
-        f.write(cipher_text)
+        f.write(cipher_text.encode())

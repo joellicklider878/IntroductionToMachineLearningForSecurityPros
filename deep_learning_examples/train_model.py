@@ -3,7 +3,7 @@ import os
 from keras.optimizers import Adam
 from keras.models import Model
 from keras.layers import Input, Activation, Flatten
-from keras.layers.convolutional import Convolution1D as Conv1D
+from keras.layers.convolutional import Conv1D
 from keras.layers.pooling import MaxPooling1D as Max1D
 from keras.layers.pooling import GlobalMaxPooling1D as GlobalMax1D
 from keras.layers.normalization import BatchNormalization
@@ -30,7 +30,7 @@ def make_dataset(dataset, nsamp, slen, maxkeylen):
     x = np.zeros((nsamp, slen, 8))
     y = np.zeros((nsamp, maxkeylen))
 
-    for i in xrange(nsamp):
+    for i in range(nsamp):
         keylen = np.random.randint(maxkeylen) + 1
 
         # save key len as categorical variable
@@ -38,13 +38,13 @@ def make_dataset(dataset, nsamp, slen, maxkeylen):
 
         dataptr = np.random.randint(len(dataset) - slen)
         data = dataset[dataptr:dataptr + slen]
-        data = np.fromstring(data, dtype=np.uint8)
+        data = np.frombuffer(data, dtype=np.uint8)
 
         key = generate_random_string(keylen)
         while principal_period(key) is not None:
             key = generate_random_string(keylen)
 
-        key = np.fromstring(key, dtype=np.uint8)
+        key = np.frombuffer(key, dtype=np.uint8)
 
         key_nrep = int(np.ceil(float(slen) / float(len(key))))
         key_exp = np.tile(key, key_nrep)[:slen]
@@ -110,26 +110,26 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    print args.__dict__
+    print(args.__dict__)
 
     lr = 0.001
     maxkeylen = 32
     slen = maxkeylen * 2
 
-    print "Loading data"
+    print("Loading data")
     with open("enwik8", "r") as f:
         dataset = f.read()
 
     tr_dataset = dataset[:9000000]
     val_dataset = dataset[9000000:]
 
-    print "Starting vectorization threads"
-    for _ in xrange(4):
+    print("Starting vectorization threads")
+    for _ in range(4):
         train_thread = Thread(target=generate_data, args=(True, tr_dataset, slen, maxkeylen))
         train_thread.daemon = True
         train_thread.start()
 
-    for _ in xrange(4):
+    for _ in range(4):
         test_thread = Thread(target=generate_data, args=(False, val_dataset, slen, maxkeylen))
         test_thread.daemon = True
         test_thread.start()
@@ -145,18 +145,18 @@ if __name__ == "__main__":
         lstm2_layer = LSTM(args.output_dim, return_sequences=True, go_backwards=True)(lstm1_layer)
         gmp_layer = GlobalMax1D()(lstm2_layer)
     else:
-        for _ in xrange(4):
-            conv_layer = Conv1D(args.output_dim, 16, border_mode='same')(prev_layer)
+        for _ in range(4):
+            conv_layer = Conv1D(args.output_dim, 16, padding='same')(prev_layer)
             bn_layer = BatchNormalization(axis=2)(conv_layer)
             act_layer = Activation(args.activation)(bn_layer)
-            mp_layer = Max1D(pool_length=2)(act_layer)
+            mp_layer = Max1D(pool_size=2)(act_layer)
             prev_layer = mp_layer
 
         gmp_layer = GlobalMax1D()(prev_layer)
 
     output_layer = Dense(maxkeylen, activation=args.output_activation)(gmp_layer)
 
-    model = Model(input=input_layer, output=output_layer)
+    model = Model(inputs=input_layer, outputs=output_layer)
     model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=Adam(lr=lr))
 
     model_name = "{0}-lr-{1}-od-{2}-oa-{3}-a-{4}.model".format(
@@ -167,7 +167,7 @@ if __name__ == "__main__":
         args.activation
     )
 
-    print "Model Summary"
+    print("Model Summary")
     model.summary()
     model.save(model_name)
 
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     stale_epochs = 0
     while True:
         x, y = train_queue.get()
-        model.fit(x, y, nb_epoch=1, verbose=1)
+        model.fit(x, y, epochs=1, verbose=1)
         nepoch += 1
 
         x, y = test_queue.get()
@@ -189,15 +189,16 @@ if __name__ == "__main__":
         validation_score = np.mean(np.argmax(y_pred, axis=1) == np.argmax(y, axis=1))
         if validation_score > best_validation_score:
             best_validation_score = validation_score
-            print "New best validation score: {0} (saving)".format(validation_score)
+            print("New best validation score: {0} (saving)".format(validation_score))
             stale_epochs = 0
             model.save(model_name)
         else:
-            print "Validation score: {0}".format(validation_score)
+            print("Validation score: {0}".format(validation_score))
             stale_epochs += 1
 
         if stale_epochs > 10:
             stale_epochs = 0
-            lr = float(0.9 * model.optimizer.lr.get_value())
-            model.optimizer.lr.set_value(lr)
-            print "Reducing learning rate to {0} after 10 stale epochs".format(lr)
+            lr = float(0.9 * float(model.optimizer.lr))
+            model.optimizer.lr = lr
+            print("Reducing learning rate to {0} after 10 stale epochs".format(lr))
+```
