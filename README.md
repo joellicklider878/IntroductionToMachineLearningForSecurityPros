@@ -8,6 +8,6 @@ change sklearn to scikit-learn
 run python 3 in virtual environment - source venv/bin/activate
 # applications
 sudo apt-get install dos2unix
-dos2unix your_script.sh
+dos2unix script.sh
 sudo apt-get install libfuzzy-dev
 sudo apt-get install python3-venv
