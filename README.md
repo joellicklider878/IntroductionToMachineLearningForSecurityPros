@@ -11,3 +11,5 @@ sudo apt-get install dos2unix
 dos2unix script.sh
 sudo apt-get install libfuzzy-dev
 sudo apt-get install python3-venv
+# format
+updating python 2 scripts to python 3
