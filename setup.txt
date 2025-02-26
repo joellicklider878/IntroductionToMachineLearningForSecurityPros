@@ -6,7 +6,7 @@ Start-Process powershell -ArgumentList "Start-Process -Verb runAs msiexec -Argum
 
 # Install dependencies
 & $env:APPDATA\ActiveState\pkg\bin\state.exe activate --default ActiveState/ActivePython-3.8
-& $env:APPDATA\ActiveState\pkg\bin\state.exe install numpy scipy scikit-learn keras theano tensorflow h5py matplotlib gevent requests ssdeep
+& $env:APPDATA\ActiveState\pkg\bin\state.exe install numpy scipy scikit-learn keras pytensor tensorflow h5py matplotlib gevent requests pydeep
 
 # Clone the repository
 git clone https://github.com/CylanceSPEAR/IntroductionToMachineLearningForSecurityPros.git
