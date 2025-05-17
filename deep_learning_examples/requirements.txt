@@ -1,7 +1,6 @@
-bitarray
-sklearn
+
+scikit-learn
 keras
-theano
 tensorflow
 numpy
 image

@@ -12,4 +12,21 @@ dos2unix script.sh
 sudo apt-get install libfuzzy-dev
 sudo apt-get install python3-venv
 # format
-updating python 2 scripts to python 3
+updated python 2 scripts to python 3
+
+created folders for deep_learning_examples
+data/
+	      dataset.py
+	      test-train.py
+    processed/
+	      lstm_model.h5
+	      X_train.py
+	      y_train.py
+src/
+	 classify_with_model.py
+	 generate_xor.py
+	 lstm-lr-0.001-od-256-oa-softmax-a-relu.keras
+	 train_model.py
+	 train_xor.sh
+
+changed requirements.txt
